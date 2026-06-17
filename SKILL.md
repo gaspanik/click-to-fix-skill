@@ -1,6 +1,7 @@
 ---
 name: click-to-fix
-description: Visual editing skill that requires no browser extension. Click anywhere in the browser to enter edit instructions, which are sent via a local server, saved to a file, and read by Claude for implementation. Works with any Claude interface (VS Code, Claude Desktop, terminal) and any framework (Astro, Vite, HTML, etc.). Trigger phrases: "click-to-fix", "クリックして修正", "ブラウザで修正", "ブラウザで編集", "visual edit". Cleanup phrase: "編集終了".
+description: >-
+  Visual editing skill that requires no browser extension. Click anywhere in the browser to enter edit instructions, which are sent via a local server, saved to a file, and read by Claude for implementation. Works with any Claude interface (VS Code, Claude Desktop, terminal) and any framework (Astro, Vite, HTML, etc.). Trigger phrases: "click-to-fix", "クリックして修正", "ブラウザで修正", "ブラウザで編集", "visual edit". Cleanup phrase: "編集終了".
 ---
 
 ## Overview
