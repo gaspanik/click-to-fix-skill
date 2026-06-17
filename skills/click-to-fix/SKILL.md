@@ -58,10 +58,14 @@ curl -s -o /dev/null -w "%{http_code}" http://localhost:<port>
 curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:47753/instruction 2>/dev/null || echo "not running"
 ```
 
-If not running:
+If not running, locate the skill scripts directory (project-local takes priority over global):
 
 ```bash
-node ~/.claude/skills/click-to-fix/scripts/server.js &
+SKILL_DIR=".claude/skills/click-to-fix/scripts"
+if [ ! -f "$SKILL_DIR/server.js" ]; then
+  SKILL_DIR="$HOME/.claude/skills/click-to-fix/scripts"
+fi
+node "$SKILL_DIR/server.js" &
 ```
 
 Verify startup (after 1 second):
@@ -74,10 +78,11 @@ A 404 response means the server is running correctly (the endpoint only accepts 
 
 ### Step 3: Deploy the overlay script
 
-Copy to the project's static file directory (typically `public/` in most frameworks):
+Copy to the project's static file directory (typically `public/` in most frameworks).
+Use the same `$SKILL_DIR` resolved in Step 2:
 
 ```bash
-cp ~/.claude/skills/click-to-fix/scripts/__click-to-fix-overlay.js <project>/<static-dir>/__click-to-fix-overlay.js
+cp "$SKILL_DIR/__click-to-fix-overlay.js" <project>/<static-dir>/__click-to-fix-overlay.js
 ```
 
 ### Step 4: Add the script tag to HTML
@@ -165,5 +170,9 @@ The server is not running. Repeat Step 2.
 
 ```bash
 lsof -ti:47753 | xargs kill -9
-node ~/.claude/skills/click-to-fix/scripts/server.js &
+SKILL_DIR=".claude/skills/click-to-fix/scripts"
+if [ ! -f "$SKILL_DIR/server.js" ]; then
+  SKILL_DIR="$HOME/.claude/skills/click-to-fix/scripts"
+fi
+node "$SKILL_DIR/server.js" &
 ```
