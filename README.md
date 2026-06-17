@@ -91,8 +91,9 @@ visual edit
 
 ## What happens when you run it
 
-1. **Dev server check** — verifies your dev server is running (starts it if not)
-2. **Local server start** — launches `server.js` on `127.0.0.1:47753`
+1. **CSS check** — detects whether the project uses Tailwind or original CSS; warns upfront if original CSS is detected, since changes to shared selectors may affect other elements
+2. **Dev server check** — verifies your dev server is running (starts it if not)
+3. **Local server start** — launches `server.js` on `127.0.0.1:47753`
 3. **Overlay deploy** — copies the overlay script to your project's static directory
 4. **Script tag inject** — adds a `<script>` tag to your HTML layout file
 5. **Edit loop** — you click, type, send; Claude reads and implements; repeat
