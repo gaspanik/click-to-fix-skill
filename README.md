@@ -74,8 +74,16 @@ git clone https://github.com/gaspanik/click-to-fix-skill
 
 **2. Install the skill into Claude Code**
 
+Global (available in all projects):
+
 ```bash
 cp -r skills/click-to-fix ~/.claude/skills/
+```
+
+Project-local (this project only):
+
+```bash
+cp -r skills/click-to-fix <your-project>/.claude/skills/
 ```
 
 **3. Run the skill**
