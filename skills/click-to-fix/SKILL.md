@@ -1,6 +1,7 @@
 ---
 name: click-to-fix
-description: Visual editing skill that requires no browser extension. Click anywhere in the browser to enter edit instructions, which are sent via a local server, saved to a file, and read by Claude for implementation. Works with any Claude interface (VS Code, Claude Desktop, terminal) and any framework (Astro, Vite, HTML, etc.). Trigger phrases: "click-to-fix", "クリックして修正", "ブラウザで修正", "ブラウザで編集", "visual edit". Cleanup phrase: "編集終了".
+description: >-
+  Visual editing skill that requires no browser extension. Click anywhere in the browser to enter edit instructions, which are sent via a local server, saved to a file, and read by Claude for implementation. Works with any Claude interface (VS Code, Claude Desktop, terminal) and any framework (Astro, Vite, HTML, etc.). Trigger phrases: "click-to-fix", "クリックして修正", "ブラウザで修正", "ブラウザで編集", "visual edit". Cleanup phrase: "編集終了".
 ---
 
 ## Overview
@@ -25,6 +26,19 @@ Works with any combination below — no browser extension required:
 **Prerequisite:** Node.js must be installed (standard in any dev environment).
 
 ## Flow
+
+### Step 0: Check CSS approach
+
+Check `package.json` and config files (`tailwind.config.*`, `vite.config.*`, etc.) to determine whether the project uses Tailwind CSS or original CSS.
+
+- **Tailwind detected** → proceed normally
+- **Original CSS detected** → warn the user upfront:
+
+```
+⚠️ このプロジェクトはオリジナルCSSを使用しています。
+CSSのクラスやセレクタを変更すると、同じクラスを使っている他の要素にも影響が出る可能性があります。
+修正後は意図しない変更が起きていないか確認してください。
+```
 
 ### Step 1: Check / start the dev server
 
@@ -108,7 +122,8 @@ Read /tmp/__click-to-fix-instruction.json
 ```
 
 2. Extract `instruction`, `x`, `y`, `element` and implement the change.
-3. Reply concisely: "〇〇を修正しました。次の指示をどうぞ（終わる場合は「編集終了」）"
+3. **If the project uses original CSS (not Tailwind):** mention that the change may affect other elements sharing the same class or selector — the user should verify there are no unintended side effects.
+4. Reply concisely: "〇〇を修正しました。次の指示をどうぞ（終わる場合は「編集終了」）"
 
 ### Step 7: Finish editing (cleanup)
 
