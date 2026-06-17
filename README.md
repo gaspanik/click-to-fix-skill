@@ -39,7 +39,10 @@ Most visual editing tools for Claude Code rely on the **Claude in Chrome** brows
 | VS Code extension | Astro |
 | Claude Desktop | Vite |
 | Terminal Claude Code | Next.js / React |
-| | Plain HTML |
+
+**OS:** macOS / Linux only — Windows is not supported (path resolution and process management rely on Unix commands).
+
+**Project type:** npm-based projects with a `package.json` and a running dev server. Plain HTML files without a dev server are not supported.
 
 **Prerequisite:** Node.js must be installed (standard in any dev environment).
 
