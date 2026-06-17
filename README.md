@@ -40,8 +40,8 @@ Most visual editing tools for Claude Code rely on the **Claude in Chrome** brows
 | Claude Desktop | Vite |
 | Terminal Claude Code | Next.js / React |
 
-**OS:** macOS / Linux only — Windows is not supported (path resolution and process management rely on Unix commands).
-macOS / Linux のみ対応。Windows は非対応（パス解決とプロセス管理に Unix コマンドを使用しています）。
+**OS:** macOS / Linux only. Windows is not officially supported — feel free to adapt the scripts to your environment.
+macOS / Linux のみ動作確認済み。Windows は非対応ですが、環境に合わせてスクリプトを書き換えることで対応できる場合があります。
 
 **Project type:** npm-based projects with a `package.json` and a running dev server. Plain HTML files without a dev server are not supported.
 `package.json` があり、dev サーバーが起動できる npm プロジェクトが対象です。dev サーバーなしの純粋な HTML ファイルは非対応です。
