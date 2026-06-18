@@ -40,8 +40,8 @@ Most visual editing tools for Claude Code rely on the **Claude in Chrome** brows
 | Claude Desktop | Vite |
 | Terminal Claude Code | Next.js / React |
 
-**OS:** macOS / Linux only. Windows is not officially supported — feel free to adapt the scripts to your environment.
-macOS / Linux のみ動作確認済み。Windows は非対応ですが、環境に合わせてスクリプトを書き換えることで対応できる場合があります。
+**OS:** macOS / Linux / Windows. The server uses `os.tmpdir()` and stops via an HTTP endpoint — no platform-specific shell commands required.
+macOS / Linux / Windows 対応。サーバーの停止は HTTP エンドポイント経由で行うため、`lsof` などの Unix 固有コマンドは不要です。
 
 **Project type:** npm-based projects with a `package.json` and a running dev server. Plain HTML files without a dev server are not supported.
 `package.json` があり、dev サーバーが起動できる npm プロジェクトが対象です。dev サーバーなしの純粋な HTML ファイルは非対応です。
@@ -111,7 +111,7 @@ visual edit
 3. **Overlay deploy** — copies the overlay script to your project's static directory
 4. **Script tag inject** — adds a `<script>` tag to your HTML layout file
 5. **Edit loop** — you click, type, send; Claude reads and implements; repeat
-6. **Cleanup** — on "編集終了", removes the script tag, overlay file, temp file, and stops the server
+6. **Cleanup** — on "編集終了", removes the script tag, overlay file, and stops the server (temp file is deleted by the server on stop)
 
 ---
 
@@ -129,11 +129,23 @@ Astro requires `is:inline` on script tags that reference `public/` assets, other
 
 ---
 
+## Edit history
+
+Each instruction is appended to `.claude/click-to-fix-history.jsonl` in the project root (one JSON object per line). Useful for reviewing what edits were made across sessions. Add it to `.gitignore` if you don't want it tracked:
+
+```
+.claude/click-to-fix-history.jsonl
+```
+
+If writing fails (e.g. no `.claude/` directory), it is silently ignored — the main editing flow is unaffected.
+
+---
+
 ## Security
 
 - The local server binds to `127.0.0.1` only — not reachable from external networks
 - CORS restricted to `localhost` / `127.0.0.1` origins
-- Writes only to `/tmp/`
+- Temp file written to `os.tmpdir()` (cross-platform)
 - Uses Node.js standard library only — no `npm install` needed
 
 ---
@@ -144,7 +156,7 @@ Astro requires `is:inline` on script tags that reference `public/` assets, other
 |-------|-----|
 | Overlay button doesn't appear | Reload the page after the skill adds the script tag |
 | "サーバーに接続できません" in popup | The local server isn't running — re-run Step 2 |
-| Port 47753 already in use | `lsof -ti:47753 \| xargs kill -9` then restart the server |
+| Port 47753 already in use | `curl -s -X POST http://127.0.0.1:47753/stop` then restart the server |
 
 ---
 

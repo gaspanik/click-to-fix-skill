@@ -9,8 +9,8 @@ description: >-
 A browser-extension-free visual editing skill.
 
 - The overlay sends instructions via `POST http://127.0.0.1:47753/instruction`
-- The bundled local server writes them to `/tmp/__click-to-fix-instruction.json`
-- Claude reads the file with the Read tool and implements the change
+- The bundled local server stores them in a temp file (`os.tmpdir()`)
+- Claude fetches the instruction via `GET http://127.0.0.1:47753/instruction`
 
 ## Supported Environments
 
@@ -74,7 +74,7 @@ Verify startup (after 1 second):
 sleep 1 && curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:47753/instruction
 ```
 
-A 404 response means the server is running correctly (the endpoint only accepts POST).
+A 404 response means the server is running correctly (GET /instruction returns 404 when no instruction has been submitted yet).
 
 ### Step 3: Deploy the overlay script
 
@@ -120,10 +120,10 @@ Place just before `</head>` or `</body>`.
 
 When the user says "送信した" (or similar):
 
-1. Read the instruction file:
+1. Fetch the instruction from the server:
 
-```
-Read /tmp/__click-to-fix-instruction.json
+```bash
+curl -s http://127.0.0.1:47753/instruction
 ```
 
 2. Extract `instruction`, `x`, `y`, `element` and implement the change.
@@ -141,24 +141,19 @@ When the user says "編集終了" (or similar):
 rm <project>/<static-dir>/__click-to-fix-overlay.js
 ```
 
-3. Delete the temp file:
+3. Stop the click-to-fix server (also deletes the temp file):
 
 ```bash
-rm -f /tmp/__click-to-fix-instruction.json
-```
-
-4. Stop the click-to-fix server:
-
-```bash
-lsof -ti:47753 | xargs kill
+curl -s -X POST http://127.0.0.1:47753/stop 2>/dev/null || true
 ```
 
 ## Security
 
 - Server binds to `127.0.0.1` (loopback) only — not accessible from external networks
 - CORS restricted to `localhost` / `127.0.0.1` origins
-- Writes only to `/tmp/`
+- Temp file written to `os.tmpdir()` (cross-platform)
 - Uses Node.js standard library only — no `npm install` needed
+- Edit history is saved to `.claude/click-to-fix-history.jsonl` in the project root — add to `.gitignore` if needed
 
 ## Troubleshooting
 
@@ -169,7 +164,7 @@ The server is not running. Repeat Step 2.
 ### Port conflict (server already running on 47753)
 
 ```bash
-lsof -ti:47753 | xargs kill -9
+curl -s -X POST http://127.0.0.1:47753/stop 2>/dev/null || true
 SKILL_DIR=".claude/skills/click-to-fix/scripts"
 if [ ! -f "$SKILL_DIR/server.js" ]; then
   SKILL_DIR="$HOME/.claude/skills/click-to-fix/scripts"
