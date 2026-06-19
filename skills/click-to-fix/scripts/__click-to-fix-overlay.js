@@ -5,7 +5,7 @@ function injectClickToFix() {
   style.textContent = `
     #__ctf-overlay{position:fixed;inset:0;z-index:999998;cursor:crosshair;}
     #__ctf-overlay.inactive{pointer-events:none;}
-    #__ctf-popup{position:fixed;z-index:999999;background:#1e1e2e;border:1.5px solid #7c3aed;border-radius:10px;padding:12px 14px;width:320px;box-shadow:0 8px 32px rgba(0,0,0,.5);font-family:system-ui,sans-serif;display:none;}
+    #__ctf-popup{position:fixed;z-index:999999;background:#1e1e2e;border:1.5px solid #7c3aed;border-radius:10px;padding:12px 14px;width:380px;box-shadow:0 8px 32px rgba(0,0,0,.5);font-family:system-ui,sans-serif;display:none;}
     #__ctf-popup .label{font-size:11px;color:#a78bfa;margin-bottom:8px;display:flex;align-items:center;gap:6px;}
     #__ctf-popup .coords{font-size:10px;color:#6b7280;}
     #__ctf-popup textarea{width:100%;box-sizing:border-box;background:#12121f;color:#e2e8f0;border:1px solid #4b5563;border-radius:6px;padding:8px;font-size:13px;resize:none;height:80px;outline:none;font-family:inherit;}
@@ -152,9 +152,13 @@ function injectClickToFix() {
       b.classList.toggle('active', b.dataset.scope === currentScope)
     );
 
-    let left = clickX + 12, top = clickY + 12;
-    if (left + 340 > window.innerWidth) left = clickX - 340;
-    if (top + 200 > window.innerHeight) top = clickY - 200;
+    const popupW = 380, popupH = 240;
+    let left = clickX + 12;
+    if (left + popupW > window.innerWidth) left = clickX - popupW - 12;
+    if (left < 8) left = 8;
+    let top = clickY + 12;
+    if (top + popupH > window.innerHeight) top = clickY - popupH - 12;
+    if (top < 8) top = 8;
     popup.style.left = left + 'px';
     popup.style.top = top + 'px';
     popup.style.display = 'block';
