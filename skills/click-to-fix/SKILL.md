@@ -126,9 +126,33 @@ When the user says "送信した" (or similar):
 curl -s http://127.0.0.1:47753/instruction
 ```
 
-2. Extract `instruction`, `x`, `y`, `element` and implement the change.
-3. **If the project uses original CSS (not Tailwind):** mention that the change may affect other elements sharing the same class or selector — the user should verify there are no unintended side effects.
-4. Reply concisely: "〇〇を修正しました。次の指示をどうぞ（終わる場合は「編集終了」）"
+2. Extract `instruction`, `x`, `y`, `element`, `windowWidth`, `breakpoint`, `scope` and implement the change.
+
+3. **Apply breakpoint-aware changes based on `scope` (Tailwind CSS):**
+
+| scope | Meaning | How to apply in Tailwind |
+|-------|---------|--------------------------|
+| `all` | All sizes | No prefix (e.g. `text-sm`) |
+| `below` | This size and smaller | `max-{bp}:` prefix (e.g. `max-md:text-sm`). When `breakpoint` is `base` (< 640px), use `max-sm:` |
+| `exact` | This size only | Apply as `{bp}:new-value {next-bp}:original-value`. **Check the element's existing classes before implementing to determine what value to restore at the next breakpoint** |
+
+**Breakpoint reference (Tailwind defaults):**
+
+| `breakpoint` value | Width | Next breakpoint |
+|---|---|---|
+| `base` | < 640px | `sm` |
+| `sm` | 640–767px | `md` |
+| `md` | 768–1023px | `lg` |
+| `lg` | 1024–1279px | `xl` |
+| `xl` | 1280–1535px | `2xl` |
+| `2xl` | ≥ 1536px | (none) |
+
+4. **If the project uses original CSS (not Tailwind):** use media queries instead of Tailwind prefixes.
+   - `scope: "below"` → `@media (max-width: {windowWidth}px) { ... }`
+   - `scope: "exact"` → `@media (min-width: {currentBpMin}px) and (max-width: {nextBpMin - 1}px) { ... }`
+   - Mention that the change may affect other elements sharing the same class or selector.
+
+5. Reply concisely: "〇〇を修正しました。次の指示をどうぞ（終わる場合は「編集終了」）"
 
 ### Step 7: Finish editing (cleanup)
 
