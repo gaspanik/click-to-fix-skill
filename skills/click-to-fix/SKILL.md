@@ -49,7 +49,21 @@ curl -s -o /dev/null -w "%{http_code}" http://localhost:<port>
 ```
 
 - Returns 200 → already running, leave it as-is
-- Not running → start it: `npm run dev &` (or equivalent)
+- Not running → detect the package manager from lockfiles, then start the dev server:
+
+```bash
+# Detect package manager
+if [ -f "bun.lockb" ] || [ -f "bun.lock" ]; then
+  PM="bun"
+elif [ -f "pnpm-lock.yaml" ]; then
+  PM="pnpm"
+elif [ -f "yarn.lock" ]; then
+  PM="yarn"
+else
+  PM="npm"
+fi
+$PM run dev &
+```
 
 ### Step 2: Start the click-to-fix server
 
