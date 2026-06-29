@@ -166,7 +166,44 @@ curl -s http://127.0.0.1:47753/instruction
    - `scope: "exact"` → `@media (min-width: {currentBpMin}px) and (max-width: {nextBpMin - 1}px) { ... }`
    - Mention that the change may affect other elements sharing the same class or selector.
 
-5. Reply concisely: "〇〇を修正しました。次の指示をどうぞ（終わる場合は「編集終了」）"
+5. **画像URLが含まれる指示の場合（`http://` / `https://` で始まる画像URL）:**
+
+   URLをそのままコードに埋め込まず、ローカルにダウンロードしてから挿入する。
+
+   **5-1. 画像の保存先を決める**
+
+   フレームワークと既存の慣習に従う：
+
+   | フレームワーク | 優先保存先 | 参照方法 |
+   |---|---|---|
+   | Astro | `src/assets/` | `import img from '@/assets/xxx.jpg'` → `<Image src={img} alt="..." width={N} height={N} />` （`astro:assets` の `<Image />` コンポーネントを使う） |
+   | Vite / React | `src/assets/` | `import img from './assets/xxx.jpg'` → `<img src={img} />` |
+   | Plain HTML | `public/` または `assets/` | `<img src="/assets/xxx.jpg" />` |
+
+   **Astro の `<Image />` 使用時の注意:**
+   - `import { Image } from 'astro:assets'` をフロントマターに追加する
+   - `width` と `height` は必須（元画像のサイズか、表示したいサイズを指定）
+   - `alt` も必須
+
+   既存の画像ファイルがどこに置かれているかを `find src public -name "*.jpg" -o -name "*.png" -o -name "*.webp" | head -5` で確認し、同じディレクトリに合わせる。
+
+   **5-2. ダウンロード**
+
+   ```bash
+   # ファイル名はURLの末尾から取得。クエリパラメータは除去する
+   curl -sL -o <保存先>/<filename>.<ext> "<url>"
+   ```
+
+   **5-3. コードへの挿入**
+
+   - **Astro / Vite（`src/assets/` 等）**: フロントマターに `import` を追加し、`src={変数名}` で参照
+   - **Plain HTML / `public/`**: `src="/assets/<filename>"` 形式で直接参照
+
+   **5-4. 外部URLは残さない**
+
+   ダウンロード後、元の `http://...` URLがコードに残っていないことを確認する。
+
+6. Reply concisely: "〇〇を修正しました。次の指示をどうぞ（終わる場合は「編集終了」）"
 
 ### Step 7: Finish editing (cleanup)
 
