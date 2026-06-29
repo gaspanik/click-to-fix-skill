@@ -52,16 +52,12 @@ curl -s -o /dev/null -w "%{http_code}" http://localhost:<port>
 - Not running → detect the package manager from lockfiles, then start the dev server:
 
 ```bash
-# Detect package manager
-if [ -f "bun.lockb" ] || [ -f "bun.lock" ]; then
-  PM="bun"
-elif [ -f "pnpm-lock.yaml" ]; then
-  PM="pnpm"
-elif [ -f "yarn.lock" ]; then
-  PM="yarn"
-else
-  PM="npm"
-fi
+PM=$(node -e "
+const fs=require('fs'),path=require('path');
+const map=[['bun.lockb','bun'],['bun.lock','bun'],['pnpm-lock.yaml','pnpm'],['yarn.lock','yarn'],['package-lock.json','npm']];
+const found=map.find(([f])=>fs.existsSync(path.join(process.cwd(),f)));
+process.stdout.write(found?found[1]:'npm');
+")
 $PM run dev &
 ```
 
@@ -75,10 +71,12 @@ curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:47753/instruction 2>/dev
 If not running, locate the skill scripts directory (project-local takes priority over global):
 
 ```bash
-SKILL_DIR=".claude/skills/click-to-fix/scripts"
-if [ ! -f "$SKILL_DIR/server.js" ]; then
-  SKILL_DIR="$HOME/.claude/skills/click-to-fix/scripts"
-fi
+SKILL_DIR=$(node -e "
+const fs=require('fs'),path=require('path'),os=require('os');
+const local=path.join('.claude','skills','click-to-fix','scripts');
+const global=path.join(os.homedir(),'.claude','skills','click-to-fix','scripts');
+process.stdout.write(fs.existsSync(path.join(local,'server.js'))?local:global);
+")
 node "$SKILL_DIR/server.js" &
 ```
 
@@ -185,7 +183,26 @@ curl -s http://127.0.0.1:47753/instruction
    - `width` と `height` は必須（元画像のサイズか、表示したいサイズを指定）
    - `alt` も必須
 
-   既存の画像ファイルがどこに置かれているかを `find src public -name "*.jpg" -o -name "*.png" -o -name "*.webp" | head -5` で確認し、同じディレクトリに合わせる。
+   既存の画像ファイルがどこに置かれているかを以下で確認し、同じディレクトリに合わせる：
+
+   ```bash
+   node -e "
+   const fs=require('fs'),path=require('path');
+   const exts=['.jpg','.jpeg','.png','.webp','.gif','.svg'];
+   const found=[];
+   const walk=(d)=>{
+     if(!fs.existsSync(d)||found.length>=5)return;
+     for(const f of fs.readdirSync(d,{withFileTypes:true})){
+       if(found.length>=5)break;
+       const p=path.join(d,f.name);
+       if(f.isDirectory())walk(p);
+       else if(exts.some(e=>f.name.endsWith(e)))found.push(p);
+     }
+   };
+   ['src','public'].forEach(walk);
+   console.log(found.join('\n')||'(none)');
+   "
+   ```
 
    **5-2. ダウンロード**
 
@@ -240,9 +257,11 @@ The server is not running. Repeat Step 2.
 
 ```bash
 curl -s -X POST http://127.0.0.1:47753/stop 2>/dev/null || true
-SKILL_DIR=".claude/skills/click-to-fix/scripts"
-if [ ! -f "$SKILL_DIR/server.js" ]; then
-  SKILL_DIR="$HOME/.claude/skills/click-to-fix/scripts"
-fi
+SKILL_DIR=$(node -e "
+const fs=require('fs'),path=require('path'),os=require('os');
+const local=path.join('.claude','skills','click-to-fix','scripts');
+const global=path.join(os.homedir(),'.claude','skills','click-to-fix','scripts');
+process.stdout.write(fs.existsSync(path.join(local,'server.js'))?local:global);
+")
 node "$SKILL_DIR/server.js" &
 ```
